@@ -1,11 +1,13 @@
 <template>
-  <div class="lrc-wrap">
-    <audio :src=song.url id="audio"></audio>
+  <div ref="listwrap" class="lrc-wrap">
+    <audio :src="song.url" id="audio"></audio>
     <header>
       <p class="lrc-title">歌词展板</p>
+      <button class="hidden-wrap-btn" @click="hiddenlist" v-if="!ishiddenlist">隐藏</button>
+      <button class="hidden-wrap-btn" @click="displaylist" v-else>显示</button>
       <div v-if="islrcshow" class="lrc-show-list">
-        <div class="lrcbox" >
-          <pre ref="lrcpre" :style="{'top':160 - movelong +'px'}">{{lrcdata}}</pre>
+        <div class="lrcbox">
+          <pre ref="lrcpre" :style="{'top':220 - movelong +'px'}">{{lrcdata}}</pre>
         </div>
       </div>
       <div v-else>
@@ -24,9 +26,10 @@ export default {
       lrcdata: {},
       url: "",
       islrcshow: false,
-      height:0,
-      movelong:0,
-      long:0
+      height: 0,
+      movelong: 0,
+      long: 0,
+      ishiddenlist: false
     };
   },
   methods: {
@@ -47,15 +50,24 @@ export default {
           console.log(error);
         });
     },
-    lrcmove () {
-      let audio = document.getElementById('audio')
-      let percent = 0
+    hiddenlist(e) {
+      e.target.parentElement.parentElement.style.right = "-" + "23.2" + "%";
+      this.ishiddenlist = !this.ishiddenlist;
+    },
+    displaylist(e) {
+      //e.target 和 refs 是一个意思哈
+      e.target.parentElement.parentElement.style.right = "5" + "px";
+      this.ishiddenlist = !this.ishiddenlist;
+    },
+    lrcmove() {
+      let audio = document.getElementById("audio");
+      let percent = 0;
       let timer = setInterval(() => {
         if (percent >= 1) {
-          clearInterval(timer)
+          clearInterval(timer);
         } else {
-          percent = audio.currentTime/this.song.time
-          this.movelong = this.long * percent 
+          percent = audio.currentTime / this.song.time;
+          this.movelong = this.long * percent;
         }
       }, 100);
     }
@@ -65,18 +77,16 @@ export default {
   },
   // 实时更新数据
   updated() {
-      this.long = this.$refs.lrcpre.offsetHeight
+    this.long = this.$refs.lrcpre.offsetHeight;
   },
   watch: {
-    song () {
-      this.percent = 0
+    song() {
+      this.percent = 0;
       this.islrcshow = false;
       this.geturl();
-
-        this.getlrc();
-        this.islrcshow = true;
-
-        this.lrcmove()
+      this.getlrc();
+      this.islrcshow = true;
+      this.lrcmove();
     }
   }
 };
@@ -91,8 +101,23 @@ export default {
   overflow-y: scroll;
   top: 134px;
   right: 5px;
+  transition: .7s;
   border-radius: 10px;
   background: #b53f3f;
+  .hidden-wrap-btn{
+    position: absolute;
+    width: 50px;
+    height: 30px;
+    top:5px;
+    left:12px;
+    line-height: 30px;
+    border:none;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    color:#fff;
+    background: #b53f3f;
+  }
   .lrc-title {
     height: 40px;
     line-height: 40px;
@@ -103,28 +128,31 @@ export default {
     position: relative;
     width: 100%;
     height: 720px;
-    .lrcbox{
+    .lrcbox {
       position: absolute;
       overflow: hidden;
-      top:45%;
+      top: 45%;
       transform: translateY(-50%);
       width: 100%;
       height: 480px;
-      background: linear-gradient( #b53f3f,rgb(82, 2, 2), #b53f3f); /* 标准的语法 */
+      background: linear-gradient(
+        #b53f3f,
+        rgb(82, 2, 2),
+        #b53f3f
+      ); /* 标准的语法 */
       pre {
         position: absolute;
         display: block;
         width: 90%;
         line-height: 40px;
-        top: 160px;
+        top: 220px;
         left: 50%;
         transform: translateX(-50%);
         text-align: center;
         color: rgb(255, 255, 255);
-        font-size: 16px;
+        font-size: 12px;
       }
     }
-
   }
 }
 ::-webkit-scrollbar {

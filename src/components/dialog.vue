@@ -1,7 +1,7 @@
 <template>
   <div class="dialog-wrap" v-if="isshow">
     <div>
-      <p>收藏成功</p>
+      <p>添加成功</p>
     </div>
   </div>
 </template>

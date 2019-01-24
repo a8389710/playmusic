@@ -1,9 +1,10 @@
 <template>
-  <div>
     <div ref="listwrap" class="playlist-wrap">
-      <button class="hidden-wrap-btn" @click="hiddenlist" v-if="!ishiddenlist">隐藏</button>
-      <button class="hidden-wrap-btn" @click="displaylist" v-else>显示</button>
-      <p class="play-title">播放列表</p>
+      <div>
+        <button class="hidden-wrap-btn" @click="hiddenlist" v-if="!ishiddenlist">隐藏</button>
+        <button class="hidden-wrap-btn" @click="displaylist" v-else>显示</button>
+        <p class="play-title">歌曲列表</p>
+      </div>
       <ul v-if="playlist">
         <li v-for="m in musicList" :key="m.id">
           <img :src="m.pic" alt>
@@ -15,22 +16,24 @@
         </li>
       </ul>
       <div v-else>
-        <p>暂无歌词</p>
+        <p>暂无歌曲</p>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
+
+
 export default {
   props: {
     playlist: String,
-    song: Object
+    song: Object,
+    listitemchange:Object
   },
   data() {
     return {
       musicList: [],
-      ishiddenlist:false,
+      ishiddenlist:false
     };
   },
   methods: {
@@ -49,26 +52,30 @@ export default {
     },
     displaylist(e){
       //e.target 和 refs 是一个意思哈
-      e.target.parentElement.style.left = '5'+'px'
+      this.$refs.listwrap.style.left  = '5'+'px'
       this.ishiddenlist = !this.ishiddenlist
     },
+    //获取当前播放歌曲的列表 根据不同种类判断
     getshowlist () {
-      if (this.playlist == "tuijianmuisc") {
+      if (this.playlist == "alllist") {
         this.musicList = JSON.parse(localStorage.getItem("musicList"));
-      } else if (this.playlist == "mymusic") {
-        this.musicList = JSON.parse(localStorage.getItem("likemusic"));
+      } else if (this.playlist == "likelist") {
+        console.log('likelist')
+        this.musicList = JSON.parse(localStorage.getItem('likelist'))
+      } else if (this.playlist == "tuijianlist") {
+        this.musicList = JSON.parse(localStorage.getItem('tuijianlist'))
       }
-    }
-  },
-  computed: {
-    showlist() {
-      this.getshowlist()
     }
   },
   watch: {
     song(val) {
       this.getshowlist()
-      console.log(1)
+    },
+    listitemchange(){
+      if (this.listitemchange == null)
+      {} else {
+        this.getshowlist()
+      } 
     }
   }
 };
@@ -133,6 +140,15 @@ export default {
     }
     .singer {
       left: 60%;
+    }
+    .like-btn{
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      right:60px;
+      transform: translateY(-50%);
+      cursor: pointer;
     }
     .play {
       position: absolute;

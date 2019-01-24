@@ -16,9 +16,9 @@
       </ul>
     </header>
     <Discover v-if="pageshow == '发现音乐'" :song=musicsrc v-on:getmusicSrc="getmusicSrc"/>
-    <Mymuisc v-else-if="pageshow == '我的音乐'" :song=musicsrc v-on:getmusicSrc="getmusicSrc"/>
-    <Audio :song=musicsrc :playlist=playlist v-on:getmusicSrc="getmusicSrc" />
-    <Playlist :playlist=playlist  v-on:getmusicSrc="getmusicSrc" :song=musicsrc />
+    <Mymuisc v-else-if="pageshow == '我的歌曲'" :song=musicsrc v-on:getmusicSrc="getmusicSrc" v-on:getlistitemchange="getlistitemchange" v-on:getdeletesong='getdeletesong' />
+    <Audio :song=musicsrc :playlist=playlist :deletesong=deletesong v-on:getmusicSrc="getmusicSrc" />
+    <Playlist  :playlist=playlist  v-on:getmusicSrc="getmusicSrc" :song=musicsrc :listitemchange=listitemchange />
     <Lrc :song=musicsrc />
   </div>
 </template>
@@ -47,13 +47,15 @@ export default {
           title: "发现音乐"
         },
         {
-          title: "我的音乐"
+          title: "我的歌曲"
         }
       ],
       pageshow: "发现音乐",
       musicsrc: {},
       playlist:'',
-      coming:0
+      coming:0,
+      listitemchange:{},
+      deletesong:{}
     };
   },
   methods: {
@@ -66,6 +68,12 @@ export default {
     getmusicSrc(m,playlist) {
       this.musicsrc = m;
       this.playlist = playlist
+    },
+    getlistitemchange (m) {
+      this.listitemchange = m
+    },
+    getdeletesong (m) {
+      this.deletesong = m
     }
   }
 };

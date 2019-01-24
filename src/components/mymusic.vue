@@ -7,7 +7,7 @@
             <img :src="m.pic" alt @click="playmusic(m)">
             <p class="name" @click="playmusic(m)">《{{m.name}}》</p>
             <p class="singer">{{m.singer}}</p>
-            <span class="play work" @click="playmusic(m,'mymusic')">播放</span>
+            <span class="play work" @click="playmusic(m,'likelist')">播放</span>
             <span class="nolike work" @click="notlikeanmore(m)">删除</span>
           </div>
         </li>
@@ -41,7 +41,8 @@ export default {
         }
       });
       this.data = showdata;
-      localStorage.setItem("likemusic", JSON.stringify(showdata));
+      localStorage.setItem("likelist", JSON.stringify(showdata));
+      localStorage.setItem("mytoplay", JSON.stringify(showdata));
     },
     playmusic(m, playlist) {
       let data = JSON.parse(localStorage.getItem("playingmusic"));
@@ -63,17 +64,22 @@ export default {
             return;
           }
         });
-        let likedata = JSON.parse(localStorage.getItem("likemusic"));
+        let likedata = JSON.parse(localStorage.getItem("likelist"));
         likedata.forEach(n => {
           if (m.id == n.id) {
             likedata.splice(likedata.indexOf(n), 1);
             return;
           }
         });
-        localStorage.setItem("musicList", JSON.stringify(data));
-        localStorage.setItem("likemusic", JSON.stringify(likedata));
+        this.$emit("getlistitemchange", m);
+        localStorage.setItem("likelist", JSON.stringify(likedata));
         this.data.splice(this.data.indexOf(m), 1);
+        this.deletenextplaymusic(m)
+        localStorage.setItem("musicList", JSON.stringify(data));
       }
+    },
+    deletenextplaymusic(m) {
+        this.$emit("getdeletesong", m);
     }
   },
   created() {

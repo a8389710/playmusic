@@ -1,11 +1,11 @@
 <template>
   <div class="play-wrap-page">
     <div class="audio-wrap">
-      <audio :src="playsong.url" id="audio"></audio>
-      <img :src="playsong.pic" alt>
+      <audio :src="song.url" id="audio"></audio>
+      <img :src="song.pic" alt>
       <p>
-        <span class="name">{{playsong.name}}</span>
-        <span class="singer">{{playsong.singer}}</span>
+        <span class="name">{{song.name}}</span>
+        <span class="singer">{{song.singer}}</span>
       </p>
       <div class="work-wrap">
         <span class="prep-song checksong" @click="playprep" v-if="!checkmusic">上一首</span>
@@ -28,10 +28,12 @@ export default {
   props: {
     song: {},
     pageshow: String,
-    playlist: String
+    playlist: String,
+    deletesong:Object
   },
   data() {
     return {
+      data:{},
       isplay: false,
       songprogress: null,
       playsong: {},
@@ -42,15 +44,24 @@ export default {
     };
   },
   methods: {
-    getaudio() {
-      let audio = document.getElementById("audio");
-      console.log("已播放时间" + audio.currentTime);
-      console.log("音频长度" + audio.duration);
+    getplaylist () {
+    if (this.playlist == "likelist") {
+          this.data = JSON.parse(localStorage.getItem("likelist"));
+        } else if (this.playlist == "alllist") {
+          this.data = JSON.parse(localStorage.getItem("musicList"));
+        } else if (this.playlist == 'tuijianlist') {
+          this.data = JSON.parse(localStorage.getItem('tuijianlist'))
+        }
     },
     playaudio() {
-      let audio = document.getElementById("audio");
-      this.isplay = true;
-      audio.play();
+      let isplaying = JSON.parse(localStorage.getItem('playingmusic'))
+      if (!isplaying) {
+        return
+      } else {
+        let audio = document.getElementById("audio");
+        this.isplay = true;
+        audio.play();
+      }
     },
     pauseaudio() {
       let audio = document.getElementById("audio");
@@ -59,29 +70,19 @@ export default {
     },
     // 下一曲
     playnext() {
-      let data;
-      if (this.playlist == "mymusic") {
-        data = JSON.parse(localStorage.getItem("likemusic"));
-      } else if (this.playlist == "tuijianmuisc") {
-        data = JSON.parse(localStorage.getItem("musicList"));
-      }
-      if (data.length == 1) {
+      if (this.data.length == 1) {
         return;
       } else {
-        data.forEach(m => {
+        this.data.forEach(m => {
           if (m.id == this.playsong.id) {
-            if (this.playsong.id == data[data.length - 1].id) {
-              this.playsong = data[0];
-              setTimeout(() => {
+            if (this.playsong.id == this.data[this.data.length - 1].id) {
+              this.playsong = this.data[0];
                 this.playaudio();
-              }, 300);
               this.$emit("getmusicSrc", this.playsong, this.playlist);
               return;
             } else {
-              this.playsong = data.splice(data.indexOf(m) + 1, 1)[0];
-              setTimeout(() => {
+              this.playsong = this.data.splice(this.data.indexOf(m) + 1, 1)[0]; 
                 this.playaudio();
-              }, 300);
               this.$emit("getmusicSrc", this.playsong, this.playlist);
               return;
             }
@@ -91,34 +92,18 @@ export default {
     },
     // 上一曲
     playprep() {
-      let data;
-      if (this.playlist == "mymusic") {
-        data = JSON.parse(localStorage.getItem("likemusic"));
-      } else if (this.playlist == "tuijianmuisc") {
-        data = JSON.parse(localStorage.getItem("musicList"));
-      }
-      if (data.length == 1) {
+      if (this.data.length == 1) {
         return;
       } else {
-        data.forEach(m => {
+        this.data.forEach(m => {
           if (m.id == this.playsong.id) {
-            // 数组后面加下标直接取对象
-            if (this.playsong.id == data[data.length - 1].id) {
-              this.playsong = data[0];
+              this.playsong = this.data.splice(this.data.indexOf(m) - 1, 1)[0];
               setTimeout(() => {
                 this.playaudio();
               }, 300);
               this.$emit("getmusicSrc", this.playsong, this.playlist);
               return;
-            } else {
-              this.playsong = data.splice(data.indexOf(m) - 1, 1)[0];
-              setTimeout(() => {
-                this.playaudio();
-              }, 300);
-              this.$emit("getmusicSrc", this.playsong, this.playlist);
-              return;
-            }
-          }
+           }
         });
       }
     },
@@ -150,19 +135,20 @@ export default {
   watch: {
     song(val) {
       this.width = 0;
-      let song = {};
-      song = this.song;
-      this.playsong = song;
+      this.playsong = this.song;
       setTimeout(() => {
         this.playaudio();
       }, 300);
       this.setprogresswidth();
       localStorage.setItem("playingmusic", JSON.stringify(this.song));
+      this.getplaylist()
     },
-    playsong(val) {
-      this.width = 0;
-      this.setprogresswidth();
-      localStorage.setItem("playingmusic", JSON.stringify(this.playsong));
+    deletesong(val){
+      if (val.id == this.song.id) {
+        this.playnext()
+      } else {
+      this.getplaylist()
+      }
     }
   }
 };

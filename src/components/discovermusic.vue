@@ -10,25 +10,25 @@
     <section>
       <ul class="tuijian-menu" v-if="chosedlist == '推荐'">
         <li class="music-list" v-for="m in showdata" :key="m.id">
-          <img :src=m.pic alt='图片加载失败' @click="playmusic(m,'tuijianmuisc')">
-          <p @click="playmusic(m,'tuijianmuisc')">
+          <img :src=m.pic alt='图片加载失败' @click="playmusic(m,'tuijianlist')">
+          <p @click="playmusic(m,'tuijianlist')">
             <span>{{m.name}}</span>
             <span>{{m.singer}}</span>
           </p>
         </li>
       </ul>
-      <ul class="paihangbang-menu" v-else-if="chosedlist == '排行榜'">
+      <ul class="paihangbang-menu" v-else-if="chosedlist == '全部'">
         <li class="music-list" v-for="(m,index) in showdata" :key="m.id">
           <!-- <img :src=m.pic alt="" @click="playmusic(m.url)"> -->
           <p>
             <span class="xuhao">{{index+1}}</span>
-            <span class="name" @click="playmusic(m,'tuijianmuisc')">{{m.name}}</span>
+            <span class="name" @click="playmusic(m,'alllist')">{{m.name}}</span>
             <span class="singer">{{m.singer}}</span>
           </p>
           <div class="userworking-wraps">
-            <span class="like" @click="likemusic(m)" v-if="!m.islike">喜欢</span>
-            <span class="like red" @click="notlikemusic(m)" v-else>已收藏</span>
-            <span class="down" @click="getshowdata">下载</span>
+            <img class="like" src='../assets/unlike.png' @click="likemusic(m)" v-if="!m.islike">
+            <img class="like red" src='../assets/like.png' @click="notlikemusic(m)" v-else>
+            <span  class="down" download="" @click="downmusic">下载</span>
           </div>
         </li>
       </ul>
@@ -57,7 +57,7 @@ export default {
           title: "推荐"
         },
         {
-          title: "排行榜"
+          title: "全部"
         }
       ],
       chosedlist: "推荐",
@@ -87,7 +87,6 @@ export default {
               m.islike = false;
             });
             localStorage.setItem("musicList", JSON.stringify(allmusic));
-            // this.showdata = allmusic.splice(0, 44);
             this.data = allmusic
           })
           .catch(function(error) {
@@ -95,7 +94,6 @@ export default {
           });
       } else {
         this.data = JSON.parse(localStorage.getItem("musicList"));
-        // this.showdata = this.data.splice(0, 44);
       }
     },
     getshowdata () {
@@ -103,15 +101,22 @@ export default {
       let box = []
       box = [...this.data]
       this.showdata = box.splice(num,44)
+      if (localStorage.getItem('playingmusic') == null) {
+        localStorage.setItem('playingmusic',JSON.stringify(""))
+      }
     },
     //将子组件的音乐music 通过emit 方式传递给 父组件的播放器（父组件播放器好定位）
     playmusic(m, playlist) {
-      let data = JSON.parse(localStorage.getItem("playingmusic"));
+      let data
+      //判断是否第一次进来 是否有播放歌曲
+      JSON.parse(localStorage.getItem("playingmusic")) == ""? this.$emit("getmusicSrc", m, playlist)||localStorage.setItem('tuijianlist',JSON.stringify(this.showdata)):data = JSON.parse(localStorage.getItem("playingmusic"))
+      // let data = JSON.parse(localStorage.getItem("playingmusic"));
       if (data != null && data.id == m.id) {
         console.log("play");
         return;
       } else {
         this.$emit("getmusicSrc", m, playlist);
+        localStorage.setItem('tuijianlist',JSON.stringify(this.showdata))
       }
     },
     // 点击喜欢按钮，将对应歌曲添加到我的音乐列表
@@ -143,18 +148,20 @@ export default {
         }
       });
       localStorage.setItem("musicList", JSON.stringify(data));
+    },
+    downmusic () {
+      alert('没有资源')
     }
   },
   created() {
     this.getdata();
     this.getshowdata()
-    console.log(this.data)
     console.log('刷新了dicover组件')
   },
   //监听列表栏的变化，便于加载对应数据
   watch: {
     chosedlist(val) {
-      if (val == "排行榜") {
+      if (val == "全部") {
         this.showdata = [...this.data];
       } else if (val == "推荐") {
       this.getshowdata()
@@ -169,6 +176,7 @@ export default {
     },
     data() {
       this.data = this.data;
+      this.getshowdata()
     }
   }
 };
@@ -177,7 +185,6 @@ export default {
 <style lang="less" scoped>
 .discover-wrap {
   position: relative;
-
   header {
     padding: 4px 0;
     margin-top: 5px;
@@ -218,41 +225,52 @@ export default {
   section {
     ul {
       margin: 0 auto;
-      width: 780px;
+      width: 775px;
       height: auto;
     }
     .tuijian-menu {
       .music-list {
         float: left;
         padding: 10px 0 0 20px;
-        margin: 10px 5px 10px;
-        width: 180px;
-        height: 180px;
+        margin-top:20px;
+        width: 190px;
+        height: 220px;
         text-align: center;
         transition: 0.3s;
         img {
-          display: block;
-          width: 140px;
-          border-radius: 5px;
+          width: 150px;
+          border-radius: 50%;
           box-shadow: 0 2px 5px rgba(138, 132, 132, 0.678);
           cursor: pointer;
-          transition: 0.3s;
+          transition: 5s;
+          transform: initial;
         }
         p {
           margin-top: 10px;
-          width: 140px;
-          height: 30px;
-          line-height: 30px;
+          height: 40px;
+          line-height: 40px;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
           font-size: 14px;
+          font-weight: bold;
+          transition: .3s;
         }
       }
       .music-list:hover {
-        transform: translateY(-6px);
+        transform: translateY(-16px);
+        p {
+          text-shadow: 0 8px 8px rgba(97, 91, 91, 0.425);
+          font-size: 16px;
+        }
         img {
-          box-shadow: 0 10px 10px rgba(97, 91, 91, 0.425);
+          box-shadow: 0 0 40px rgb(17, 102, 230);
+           animation: circle1 3s infinite linear ;
+        }
+        @keyframes circle1 {
+          100%{
+            transform: rotateZ(360deg);
+          }
         }
       }
     }
@@ -260,7 +278,7 @@ export default {
       li {
         position: relative;
         padding-left: 10px;
-        width: 800px;
+        width: 780px;
         height: 40px;
         line-height: 40px;
         text-align: left;
@@ -303,15 +321,13 @@ export default {
             margin: 0 10px;
             cursor: pointer;
           }
+          .like {
+            width: 20px;
+            cursor: pointer;
+          }
           .down {
             position: absolute;
             right: 10px;
-          }
-          span:hover {
-            color: red;
-          }
-          .red {
-            color: red;
           }
         }
       }
