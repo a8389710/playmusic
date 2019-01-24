@@ -72,10 +72,10 @@ export default {
       this.percent = 0
       this.islrcshow = false;
       this.geturl();
-      setTimeout(() => {
+
         this.getlrc();
         this.islrcshow = true;
-      }, 500);
+
         this.lrcmove()
     }
   }

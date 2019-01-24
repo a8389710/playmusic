@@ -10,7 +10,7 @@
     <section>
       <ul class="tuijian-menu" v-if="chosedlist == '推荐'">
         <li class="music-list" v-for="m in showdata" :key="m.id">
-          <img :src="m.pic" alt @click="playmusic(m,'tuijianmuisc')">
+          <img :src=m.pic alt='图片加载失败' @click="playmusic(m,'tuijianmuisc')">
           <p @click="playmusic(m,'tuijianmuisc')">
             <span>{{m.name}}</span>
             <span>{{m.singer}}</span>
@@ -28,7 +28,7 @@
           <div class="userworking-wraps">
             <span class="like" @click="likemusic(m)" v-if="!m.islike">喜欢</span>
             <span class="like red" @click="notlikemusic(m)" v-else>已收藏</span>
-            <span class="down">下载</span>
+            <span class="down" @click="getshowdata">下载</span>
           </div>
         </li>
       </ul>
@@ -87,16 +87,22 @@ export default {
               m.islike = false;
             });
             localStorage.setItem("musicList", JSON.stringify(allmusic));
-            this.showdata = allmusic.splice(0, 44);
-            console.log(this.showdata);
+            // this.showdata = allmusic.splice(0, 44);
+            this.data = allmusic
           })
           .catch(function(error) {
             console.log(error);
           });
       } else {
         this.data = JSON.parse(localStorage.getItem("musicList"));
-        this.showdata = this.data.splice(0, 44);
+        // this.showdata = this.data.splice(0, 44);
       }
+    },
+    getshowdata () {
+      let num = Math.floor((Math.random())*100)
+      let box = []
+      box = [...this.data]
+      this.showdata = box.splice(num,44)
     },
     //将子组件的音乐music 通过emit 方式传递给 父组件的播放器（父组件播放器好定位）
     playmusic(m, playlist) {
@@ -141,6 +147,9 @@ export default {
   },
   created() {
     this.getdata();
+    this.getshowdata()
+    console.log(this.data)
+    console.log('刷新了dicover组件')
   },
   //监听列表栏的变化，便于加载对应数据
   watch: {
@@ -148,9 +157,7 @@ export default {
       if (val == "排行榜") {
         this.showdata = [...this.data];
       } else if (val == "推荐") {
-        let databox = [...this.data];
-        let shownum = Math.floor(Math.random() * 100);
-        this.showdata = databox.splice(shownum, 40);
+      this.getshowdata()
       }
     },
     opendialog(val) {

@@ -36,7 +36,6 @@ export default {
       songprogress: null,
       playsong: {},
       ischange: false,
-      pausenum: 0,
       width: 0,
       pausewidth: 0,
       checkmusic: false
@@ -52,13 +51,11 @@ export default {
       let audio = document.getElementById("audio");
       this.isplay = true;
       audio.play();
-      this.setprogresswidth();
     },
     pauseaudio() {
       let audio = document.getElementById("audio");
       this.isplay = false;
       audio.pause();
-      this.pausewidth = this.width;
     },
     // 下一曲
     playnext() {
@@ -133,6 +130,7 @@ export default {
       let timer = setInterval(() => {
         if (this.width >= 1) {
           clearInterval(timer);
+          this.playnext()
         } else {
           this.width = audio.currentTime / this.playsong.time;
         }
