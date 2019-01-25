@@ -253,23 +253,25 @@ export default {
           text-overflow: ellipsis;
           overflow: hidden;
           font-size: 14px;
+          text-align: center;
           font-weight: bold;
           transition: .3s;
         }
       }
       .music-list:hover {
-        transform: translateY(-16px);
+      
         p {
+          transform: scale(1.2);
           text-shadow: 0 8px 8px rgba(97, 91, 91, 0.425);
-          font-size: 16px;
+          font-size: 15px;
         }
         img {
-          box-shadow: 0 0 40px rgb(17, 102, 230);
-           animation: circle1 3s infinite linear ;
+          box-shadow: 0 0 30px rgb(226, 41, 17);
+          animation: circle1 3s infinite linear forwards  ;
         }
         @keyframes circle1 {
           100%{
-            transform: rotateZ(360deg);
+            transform: rotateZ(360deg) ;
           }
         }
       }
