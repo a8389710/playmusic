@@ -55,7 +55,8 @@ export default {
       playlist:'',
       coming:0,
       listitemchange:{},
-      deletesong:{}
+      deletesong:{},
+      checksong:true
     };
   },
   methods: {
@@ -75,6 +76,8 @@ export default {
     getdeletesong (m) {
       this.deletesong = m
     }
+  },
+  watch:{
   }
 };
 </script>

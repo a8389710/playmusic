@@ -62,7 +62,8 @@ export default {
       ],
       chosedlist: "推荐",
       musicsrc: "",
-      opendialog: false
+      opendialog: false,
+      noplayingnow:false
     };
   },
   methods: {
@@ -107,6 +108,8 @@ export default {
     },
     //将子组件的音乐music 通过emit 方式传递给 父组件的播放器（父组件播放器好定位）
     playmusic(m, playlist) {
+      if (this.noplayingnow) {
+      } else {
       let data
       //判断是否第一次进来 是否有播放歌曲
       JSON.parse(localStorage.getItem("playingmusic")) == ""? this.$emit("getmusicSrc", m, playlist)||localStorage.setItem('tuijianlist',JSON.stringify(this.showdata)):data = JSON.parse(localStorage.getItem("playingmusic"))
@@ -117,6 +120,7 @@ export default {
       } else {
         this.$emit("getmusicSrc", m, playlist);
         localStorage.setItem('tuijianlist',JSON.stringify(this.showdata))
+      }
       }
     },
     // 点击喜欢按钮，将对应歌曲添加到我的音乐列表
@@ -166,6 +170,12 @@ export default {
       } else if (val == "推荐") {
       this.getshowdata()
       }
+    },
+    song (){
+      this.noplayingnow = true
+      setTimeout(()=>{
+        this.noplayingnow = false
+      },2000)
     },
     opendialog(val) {
       if (val) {
