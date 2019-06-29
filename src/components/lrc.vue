@@ -39,13 +39,12 @@ export default {
     };
   },
   methods: {
-    geturl() {
-      this.url = this.song.lrc;
-    },
     getlrc() {
       let data;
       this.axios
-        .get(this.url)
+        .get(
+          "https://v1.itooi.cn/netease/lrc?id="+this.song.id
+        )
         // 这个地方的箭头函数指向当前this 原始是funciton es5 this指向不同 是个坑
         .then(response => {
           data = response.data;
@@ -103,8 +102,7 @@ export default {
           }
         });
       }, 250);
-      console.log(this.lrctime.length)
-      console.log(this.lrcdata.length)
+
       },1000)
 
       // percent = audio.currentTime / this.song.time;
@@ -125,7 +123,6 @@ export default {
       this.movelong = 0;
       this.percent = 0;
       this.islrcshow = false;
-      this.geturl();
       this.getlrc();
       this.islrcshow = true;
       this.lrcmove()

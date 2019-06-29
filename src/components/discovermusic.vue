@@ -10,7 +10,7 @@
     <section>
       <ul class="tuijian-menu" v-if="chosedlist == '推荐'">
         <li class="music-list" v-for="m in showdata" :key="m.id">
-          <img :src=m.pic alt='图片加载失败' @click="playmusic(m,'tuijianlist')">
+          <img :src="m.album.blurPicUrl" alt="图片加载失败" @click="playmusic(m,'tuijianlist')">
           <p @click="playmusic(m,'tuijianlist')">
             <span>{{m.name}}</span>
             <span>{{m.singer}}</span>
@@ -26,9 +26,9 @@
             <span class="singer">{{m.singer}}</span>
           </p>
           <div class="userworking-wraps">
-            <img class="like" src='../assets/unlike.png' @click="likemusic(m)" v-if="!m.islike">
-            <img class="like red" src='../assets/like.png' @click="notlikemusic(m)" v-else>
-            <span  class="down" download="" @click="downmusic">下载</span>
+            <img class="like" src="../assets/unlike.png" @click="likemusic(m)" v-if="!m.islike">
+            <img class="like red" src="../assets/like.png" @click="notlikemusic(m)" v-else>
+            <span class="down" download @click="downmusic">下载</span>
           </div>
         </li>
       </ul>
@@ -63,7 +63,7 @@ export default {
       chosedlist: "推荐",
       musicsrc: "",
       opendialog: false,
-      noplayingnow:false
+      noplayingnow: false
     };
   },
   methods: {
@@ -75,52 +75,52 @@ export default {
     },
     // 发现音乐
     getdata() {
-      if (localStorage.getItem("musicList") === null) {
-        this.axios
-          .get(
-            "https://api.bzqll.com/music/netease/songList?key=579621905&id=3778678&limit=10&offset=0"
-          )
-          .then(response => {
-            console.log(response);
-            //将api数据暂时存入本地
-            let allmusic = response.data.data.songs;
-            allmusic.forEach(m => {
-              m.islike = false;
-            });
-            localStorage.setItem("musicList", JSON.stringify(allmusic));
-            this.data = allmusic
-          })
-          .catch(function(error) {
-            console.log(error);
+      this.axios
+        .get(
+          // "https://api.bzqll.com/music/netease/songList?key=579621905&id=3778678&limit=10&offset=0",
+          "https://v1.itooi.cn/netease/songList?id=141998290&pageSize=20"
+        )
+        .then(response => {
+          //将api数据暂时存入本地
+          // let allmusic = response.data.data.songs;
+          let allmusic = response.data.data.tracks;
+          allmusic.forEach(m => {
+            m.islike = false;
           });
-      } else {
-        this.data = JSON.parse(localStorage.getItem("musicList"));
-      }
+          localStorage.setItem("musicList", JSON.stringify(allmusic));
+          this.data = allmusic;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
-    getshowdata () {
-      let num = Math.floor((Math.random())*100)
-      let box = []
-      box = [...this.data]
-      this.showdata = box.splice(num,44)
-      if (localStorage.getItem('playingmusic') == null) {
-        localStorage.setItem('playingmusic',JSON.stringify(""))
+    getshowdata() {
+      let num = Math.floor(Math.random() * 100);
+      let box = [];
+      box = [...this.data];
+      this.showdata = box.splice(num, 44);
+      if (localStorage.getItem("playingmusic") == null) {
+        localStorage.setItem("playingmusic", JSON.stringify(""));
       }
     },
     //将子组件的音乐music 通过emit 方式传递给 父组件的播放器（父组件播放器好定位）
     playmusic(m, playlist) {
       if (this.noplayingnow) {
       } else {
-      let data
-      //判断是否第一次进来 是否有播放歌曲
-      JSON.parse(localStorage.getItem("playingmusic")) == ""? this.$emit("getmusicSrc", m, playlist)||localStorage.setItem('tuijianlist',JSON.stringify(this.showdata)):data = JSON.parse(localStorage.getItem("playingmusic"))
-      // let data = JSON.parse(localStorage.getItem("playingmusic"));
-      if (data != null && data.id == m.id) {
-        console.log("play");
-        return;
-      } else {
-        this.$emit("getmusicSrc", m, playlist);
-        localStorage.setItem('tuijianlist',JSON.stringify(this.showdata))
-      }
+        let data;
+        //判断是否第一次进来 是否有播放歌曲
+        JSON.parse(localStorage.getItem("playingmusic")) == ""
+          ? this.$emit("getmusicSrc", m, playlist) ||
+            localStorage.setItem("tuijianlist", JSON.stringify(this.showdata))
+          : (data = JSON.parse(localStorage.getItem("playingmusic")));
+        // let data = JSON.parse(localStorage.getItem("playingmusic"));
+        if (data != null && data.id == m.id) {
+          console.log("play");
+          return;
+        } else {
+          this.$emit("getmusicSrc", m, playlist);
+          localStorage.setItem("tuijianlist", JSON.stringify(this.showdata));
+        }
       }
     },
     // 点击喜欢按钮，将对应歌曲添加到我的音乐列表
@@ -153,14 +153,13 @@ export default {
       });
       localStorage.setItem("musicList", JSON.stringify(data));
     },
-    downmusic () {
-      alert('没有资源')
+    downmusic() {
+      alert("没有资源");
     }
   },
   created() {
     this.getdata();
-    this.getshowdata()
-    console.log('刷新了dicover组件')
+    this.getshowdata();
   },
   //监听列表栏的变化，便于加载对应数据
   watch: {
@@ -168,14 +167,14 @@ export default {
       if (val == "全部") {
         this.showdata = [...this.data];
       } else if (val == "推荐") {
-      this.getshowdata()
+        this.getshowdata();
       }
     },
-    song (){
-      this.noplayingnow = true
-      setTimeout(()=>{
-        this.noplayingnow = false
-      },2000)
+    song() {
+      this.noplayingnow = true;
+      setTimeout(() => {
+        this.noplayingnow = false;
+      }, 2000);
     },
     opendialog(val) {
       if (val) {
@@ -186,7 +185,7 @@ export default {
     },
     data() {
       this.data = this.data;
-      this.getshowdata()
+      this.getshowdata();
     }
   }
 };
@@ -242,7 +241,7 @@ export default {
       .music-list {
         float: left;
         padding: 10px 0 0 20px;
-        margin-top:20px;
+        margin-top: 20px;
         width: 190px;
         height: 220px;
         text-align: center;
@@ -265,11 +264,10 @@ export default {
           font-size: 14px;
           text-align: center;
           font-weight: bold;
-          transition: .3s;
+          transition: 0.3s;
         }
       }
       .music-list:hover {
-      
         p {
           transform: scale(1.2);
           text-shadow: 0 8px 8px rgba(97, 91, 91, 0.425);
@@ -277,11 +275,11 @@ export default {
         }
         img {
           box-shadow: 0 0 30px rgb(226, 41, 17);
-          animation: circle1 3s infinite linear forwards  ;
+          animation: circle1 3s infinite linear forwards;
         }
         @keyframes circle1 {
-          100%{
-            transform: rotateZ(360deg) ;
+          100% {
+            transform: rotateZ(360deg);
           }
         }
       }

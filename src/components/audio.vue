@@ -1,8 +1,8 @@
 <template>
   <div class="play-wrap-page">
-    <div class="audio-wrap">
-      <audio :src="song.url" id="audio"></audio>
-      <img :src="song.pic" alt>
+    <div class="audio-wrap" v-if="song.album">
+      <audio :src="playsrc" id="audio"></audio>
+      <img  :src="song.album.picUrl" alt>
       <p>
         <span class="name">{{song.name}}</span>
         <span class="singer">{{song.singer}}</span>
@@ -34,13 +34,15 @@ export default {
   data() {
     return {
       data:{},
+      playsrc:"",
       isplay: false,
       songprogress: null,
       playsong: {},
       ischange: false,
       width: 0,
       pausewidth: 0,
-      checkmusic: false
+      checkmusic: false,
+      songTime:1,
     };
   },
   methods: {
@@ -60,7 +62,10 @@ export default {
       } else {
         let audio = document.getElementById("audio");
         this.isplay = true;
-        audio.play();
+        let musicId = this.song.id
+          audio.play();
+          this.songTime = this.song.bMusic.playTime
+          this.setprogresswidth()
       }
     },
     pauseaudio() {
@@ -117,16 +122,17 @@ export default {
           clearInterval(timer);
           this.playnext()
         } else {
-          this.width = audio.currentTime / this.playsong.time;
+          this.width = (audio.currentTime / this.songTime * 1000);
+          console.log(this.width)
         }
       }, 100);
     }
   },
   computed: {
     getwidth() {
-      let time = this.playsong.time;
+      let time = this.songTime/1000;
       let mins = Math.floor(time / 60);
-      let seconds = time - mins * 60;
+      let seconds = (time - mins * 60).toFixed(0);
       let showtime = mins + ":" + seconds;
       return showtime;
     }
@@ -136,10 +142,11 @@ export default {
     song(val) {
       this.width = 0;
       this.playsong = this.song;
+      this.songTime = this.song.bMusic.playTime
+      this.playsrc = "https://v1.itooi.cn/netease/url?id="+this.song.id+"&quality=flac"
       setTimeout(() => {
         this.playaudio();
       }, 300);
-      this.setprogresswidth();
       localStorage.setItem("playingmusic", JSON.stringify(this.song));
       this.getplaylist()
     },
